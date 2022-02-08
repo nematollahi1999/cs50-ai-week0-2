@@ -94,6 +94,8 @@ def winner(board):
         else:
             return O
 
+    return None
+
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
