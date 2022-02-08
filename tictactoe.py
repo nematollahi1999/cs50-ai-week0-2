@@ -4,8 +4,8 @@ Tic Tac Toe Player
 
 import math
 import copy
-from socket import errorTab
-from xml.dom.minidom import Element
+
+
 
 X = "X"
 O = "O"
@@ -51,7 +51,7 @@ def actions(board):
         for j, verticalOrder in enumerate(horizontalOrder):
             if verticalOrder == EMPTY:
                 possibleActions.append((i,j))
-    return actions
+    return possibleActions
 
 
 def result(board, action):
@@ -71,25 +71,25 @@ def winner(board):
     """
     for i in range(3):
         if (board[i][0] != EMPTY) and (board[i][0] == board[i][1]) and (board[i][1] == board[i][2]):
-            if (board[i][0] == X):
+            if board[i][0] == X:
                 return X
             else:
                 return O
-        
+
         if (board[0][i] != EMPTY) and (board[0][i] == board[1][i]) and (board[1][i] == board[2][i]):
-            if (board[0][i] == X):
+            if board[0][i] == X:
                 return X
             else:
                 return O
 
     """outta for-loop for non-horizontal-vertical"""
     if (board[0][0] != EMPTY) and (board[0][0] == board[1][1]) and (board[1][1] == board[2][2]):
-        if (board[0][0] == X):
+        if board[0][0] == X:
             return X
         else:
             return O
     if (board[0][2] != EMPTY) and (board[0][2] == board[1][1]) and (board[1][1] == board[2][0]):
-        if (board[0][2] == X):
+        if board[0][2] == X:
             return X
         else:
             return O
@@ -100,18 +100,76 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    if winner(board) is not None:
+        return True
+
+    for horizontalOrder in board:
+        for verticalOrder in horizontalOrder:
+            if verticalOrder == EMPTY:
+                return False
+
+    return True
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    if winner(board) == X:
+        return 1
+    if winner(board) == O:
+        return -1
+    else:
+        return 0
 
+"""extra functions"""
+
+def min_value(board):
+    if terminal(board):
+        return utility(board)
+
+    min_v = math.inf
+    for action in actions(board):
+        min_v = min(min_v, max_value(result(board, action)))
+    
+    return min_v
+
+def max_value(board):
+    if terminal(board):
+        return utility(board)
+
+    max_v = -math.inf
+    for action in actions(board):
+        max_v = max(max_v, min_value(result(board, action)))
+    
+    return max_v
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if terminal(board):
+        return None
+
+    if player(board) == X:
+        bestValue = -math.inf
+        optimalAction = None
+        for action in actions(board):
+            max = min_value(result(board, action))
+            if  max > bestValue:
+                bestValue = max
+                optimalAction = action
+        return optimalAction
+    
+    elif player(board) == O:
+        bestValue = math.inf
+        optimalAction = None
+        for action in actions(board):
+            min = max_value(result(board, action))
+            if min < bestValue:
+                bestValue = min
+                optimalAction = action
+        return optimalAction
+
+
+
